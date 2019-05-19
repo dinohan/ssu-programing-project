@@ -3,12 +3,16 @@
 ## 팀원
 
 > 이강준 20192852
+> Github ID : Ladun
 >
 > **이재호** 20192860
->
+> Github ID : BBoBLi
+> 
 > 정준서 20192873
->
+> Github ID : juns1s
+> 
 > 한도협 20192880
+> Github ID : dinohan
 
 ## 프로그램
 
