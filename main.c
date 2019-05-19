@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #define LEFT 104
@@ -44,7 +45,6 @@ POSITION	cPos;				// 캐릭터의 현재 위치
 
 MAPDATA		mapData[NUMBER_OF_MAPS];		// File로 부터 받아온 맵 정보
 
-int Len(char *s);				// 문자열의 길이를 출력하는 함수
 int MapLoading();				// map파일로부터 맵을 로딩하는 함수
 
 int main(){
@@ -71,13 +71,13 @@ int MapLoading() {
 	char s[MAPSIZE];	// 한 줄씩 받아오기 위한 변수
 	int returnValue = 1;	// 리턴 값 1 == 정상작동, 0 == 비정상작동
 
-	int strLength = 0;	// 현재 읽어드린 문자열의 길이 
+	int strLength = 0;	// 현재 읽어들인 문자열의 길이
 	int level = -1;		// 현재 로드하는 맵의 레벨
 	int currentY = 0;	// 현재 로드 중인 맵의 Y축 위치
 
 	int goldCount = 0, storageCount = 0; // 금괴 개수와 저장소 개수가 맞는 확인하는 변수
 	while (fscanf(mapFile, "%s",s) != EOF) { // 입력이 존재하면
-		strLength = Len(s);
+		strLength = strlen(s);
 		if (strLength > 30)		{
 			printf("적합하지 않은 map파일입니다.\n");
 			returnValue = 0;
@@ -130,13 +130,4 @@ int MapLoading() {
 
 	fclose(mapFile);
 	return returnValue;
-}
-
-int Len(char *s) {
-	// 문자열의 인덱스를 0부터 확인하면서 '\0'가 아닐 때까지 i를 1씩 더함
-	int i = 0;
-	while (s[i] != '\0') {
-		i++;
-	}
-	return i;
 }
