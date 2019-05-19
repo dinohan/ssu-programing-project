@@ -21,6 +21,11 @@
 * [ranking.txt](./ranking.txt)
 * [sokoban.txt](./sokoban.txt)
 
+## 프로그램 설명
+### 함수
+`main()` : 메인 함수, `MapLoading()` 함수를 호출함
+`MapLoading()` : 프로그램을 실행하고, 맵을 불러오는 함수, 최초에 실행함.
+
 ## [Notion](https://www.notion.so/dinohan/Sokoban-8149ab2adfbf4249a073d10d1d1a2970)
 
 ##	[문제 설명](./project.pdf)
