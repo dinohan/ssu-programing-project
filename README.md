@@ -4,15 +4,19 @@
 
 > 이강준 20192852
 > Github ID : Ladun
+> Part : `MapLoading()` 함수
 >
 > **이재호** 20192860
 > Github ID : BBoBLi
+> Part : 조장
 > 
 > 정준서 20192873
 > Github ID : juns1s
+> Part : 
 > 
 > 한도협 20192880
 > Github ID : dinohan
+> Part : `GitHub` 관리
 
 ## 프로그램
 
