@@ -1,4 +1,4 @@
-# 소코반 프로젝트
+﻿# 소코반 프로젝트
 
 ## 팀원
 
@@ -13,6 +13,7 @@
 * GitHub ID : BBoBLi
 * Part
   * 조장
+  * add `Render()`, `SetMap()`, `gotoxy()`, `getch()`
 
 #### 정준서 20192873
 * GitHub ID : juns1s
@@ -24,6 +25,7 @@
 * GitHub ID : dinohan
 * Part
   * GitHub 관리
+  * add `Input()`, `New()`, `Clear()`
 
 
 
