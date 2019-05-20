@@ -16,10 +16,10 @@
   * add `Render()`, `SetMap()`, `gotoxy()`, `getch()`
 
 #### 정준서 20192873
+
 * GitHub ID : juns1s
 * Part
   * -
-
 
 #### 한도협 20192880
 * GitHub ID : dinohan
@@ -27,14 +27,14 @@
   * GitHub 관리
   * add `Input()`, `New()`, `Clear()`
 
-
-
 ## 프로그램
 
 * [main.c](./main.c)
 * [map.txt](./map.txt)
 * [ranking.txt](./ranking.txt)
 * [sokoban.txt](./sokoban.txt)
+
+프로그램 설명은 [보고서](./REPORT.md) 참조
 
 ## [Notion](https://www.notion.so/dinohan/Sokoban-8149ab2adfbf4249a073d10d1d1a2970)
 
