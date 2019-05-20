@@ -44,19 +44,32 @@ typedef struct _tagMapData {
 
 }MAPDATA, * PMAPDATA;
 
+// 움직인 정보를 가지는 구조체
+typedef struct _tagMoveInfo {
+	POSITION delta;				// 얼마만큼 움직였는지
+	POSITION goldPosition;		// 움직인 후 금의 위치
+}MOVEINFO, * PMOVEINFO;
+
 int getch();				// 화면에 문자를 출력하지 않고 입력을 받는 함수
 void gotoxy(int x, int y);		// 화면의 커서를 움직이는 함수
 int MapLoading();				// map파일로부터 맵을 로딩하는 함수
 int SetMap(int level);			// 현재 플레이할 맵을 레벨이 level인 맵으로 변경
+void Input();					// 입력을 담당하는 함수
 void Render();					// 화면 출력을 담당하는 함수
+void New();                     // 새로시작
+int Clear();					// 게임을 클리어 했는지 확인하는 함수
 
 // 저장되어야할 정보
+char		name[10];			// 이름
+int			movingCount;		// 움직인 개수
 int			currentLevel = 0;	// 현재 맵의 레벨 0 ~ 4
 MAPDATA		cMapData;			// 여기의 map 변수에는 금의 위치만 표시
 POSITION	cPos;				// 캐릭터의 현재 위치
+MOVEINFO	moveInfo[5];		// 최근 5번의 이동을 담은 변수
 
 // 저장되지 않아도 되는 정보
 MAPDATA		mapData[NUMBER_OF_MAPS];		// File로 부터 받아온 맵 정보
+int			isPlay = 1;						// 현재 게임이 실행중인지.
 
 /*
 - h(왼쪽), j(아래), k(위), l(오른쪽) : 왼쪽 아래 위 오른쪽 창고지기 조정
@@ -70,16 +83,77 @@ int main() {
 		return 0;
 	}
 
+	printf("이름을 입력하십시오: ");
+	scanf("%s", name);
+
 	// 처음 맵의 정보를 가져와서 적용함
 	if (!SetMap(0)) {
 		fprintf(stderr, "Init SetMap() Error\n");
 		return 0;
 	}
 
-	Render(); // 화면에 맵 출력
+	while (isPlay) {
+		Input(); // 입력 처리 관련 함수
+		Render(); // 화면에 맵 출력
 
+		if (Clear()) { // 게임 클리어 확인
+
+			system("clear");
+			printf("#####################################\n");
+			printf("#                                   #\n");
+			printf("#                                   #\n");
+			printf("#                                   #\n");
+			printf("#              %02d Clear             #\n", currentLevel + 1);
+			printf("#                                   #\n");
+			printf("#                                   #\n");
+			printf("#                                   #\n");
+			printf("#####################################\n");
+
+			getch();
+
+
+
+			currentLevel++;
+			New(); // 다음 레벨의 새로운 맵을 불러옴
+		}
+	}
 }
 
+void Input() {
+
+	char c = getch();
+	switch (c) {
+	case LEFT:
+		break;
+	case UP:
+		break;
+	case RIGHT:
+		break;
+	case DOWN:
+		break;
+	case UNDO:
+		break;
+	case NEW:
+		break;
+	case REPLAY:
+		break;
+	case SAVE:
+		break;
+	case FILE_LOAD:
+		break;
+	case DISPLAY_HELP:
+		break;
+	case TOP:
+		break;
+	case EXIT:
+		break;
+	case LF: // Lind Feed 혹은
+	case CR: // Carriage return 이면, 즉 엔터가 눌렸으면
+
+	default:
+		break;
+	}
+}
 
 // 화면에 맵을 출력하는 함수
 void Render() {
@@ -97,6 +171,11 @@ void Render() {
 				printf(" ");
 		}
 	}
+}
+
+void New() {
+	movingCount = 0;
+	SetMap(currentLevel);
 }
 
 int MapLoading() {
@@ -176,8 +255,9 @@ int MapLoading() {
 	return returnValue;
 }
 
+
 int SetMap(int level) {
-    	
+
 	currentLevel = level; // 현재 게임 레벨을 level로 설정
 	if (!(mapData[currentLevel].width > 0 && mapData[currentLevel].height > 0)) // level에 해당하는 맵이 존재하지 않으면 게임 종료
 		return 0;
@@ -200,6 +280,18 @@ int SetMap(int level) {
 
 	system("clear"); // 화면 비우기
 	Render(); // 맵 출력
+	return 1;
+}
+
+
+int Clear() {
+	for (int y = 0; y < cMapData.height; y++) {
+		for (int x = 0; x < cMapData.width; x++) {
+			// 금괴 중 1개라도 저장소 위치에 있지 않다면 0 반환
+			if (cMapData.map[y][x] == GOLD && mapData[currentLevel].map[y][x] != STORAGE)
+				return 0;
+		}
+	}
 	return 1;
 }
 
