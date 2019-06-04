@@ -29,55 +29,57 @@
 
 #define MAPSIZE 31
 
-
-// 위치 정보를 가지는 구조체
-typedef struct _tagPosition {
-	int x;
-	int	y;
-}POSITION, * PPOSITION;
-
-// 맵의 정보를 가지고 있는 구조체
-typedef struct _tagMapData {
-	int map[MAPSIZE][MAPSIZE];	// 맵 정보를 저장하는 배열
-	int width, height;			// 맵의 높이와 길이
-	POSITION playerInitPos;		// 플레이어의 시작점
-
-}MAPDATA, * PMAPDATA;
-
-// 움직인 정보를 가지는 구조체
-typedef struct _tagMoveInfo {
-	POSITION delta;				// 얼마만큼 움직였는지
-	POSITION goldPosition;		// 움직인 후 금의 위치
-}MOVEINFO, * PMOVEINFO;
-
-int getch();				// 화면에 문자를 출력하지 않고 입력을 받는 함수
+int getch();					// 화면에 문자를 출력하지 않고 입력을 받는 함수
 void gotoxy(int x, int y);		// 화면의 커서를 움직이는 함수
+int Len(char* s);				// 문자열의 길이를 출력하는 함수
 int MapLoading();				// map파일로부터 맵을 로딩하는 함수
 int SetMap(int level);			// 현재 플레이할 맵을 레벨이 level인 맵으로 변경
+int IsInMap(int, int);			// _pos가 맵 안에 있는 위치인지
 void Input();					// 입력을 담당하는 함수
 void Render();					// 화면 출력을 담당하는 함수
-void New();                     // 새로시작
+void Move(int delX, int delY); // x축으로 delX만큼, y로 delY 만큼
+int RankingSave();				// 랭킹을 저장하는 함수
+int RankingLoad();				// top파일로부터 랭킹 정보를 가져오는 함수
 int Clear();					// 게임을 클리어 했는지 확인하는 함수
 
-// 저장되어야할 정보
-char		name[10];			// 이름
-int			movingCount;		// 움직인 개수
-int			currentLevel = 0;	// 현재 맵의 레벨 0 ~ 4
-MAPDATA		cMapData;			// 여기의 map 변수에는 금의 위치만 표시
-POSITION	cPos;				// 캐릭터의 현재 위치
-MOVEINFO	moveInfo[5];		// 최근 5번의 이동을 담은 변수
+// 저장되어야할 정보--------------------------------------------------------
+char		name[10];					// 이름
+int			movingCount;				// 움직인 개수
+int			currentLevel = 0;			// 현재 맵의 레벨 0 ~ 4
+int			cMapData[MAPSIZE][MAPSIZE];	// 여기의 map 변수에는 금의 위치만 표시
+int			cPos_x, cPos_y;				// 캐릭터의 현재 위치
 
-// 저장되지 않아도 되는 정보
-MAPDATA		mapData[NUMBER_OF_MAPS];		// File로 부터 받아온 맵 정보
-int			isPlay = 1;						// 현재 게임이 실행중인지.
+// 저장되지 않아도 되는 정보------------------------------------------------
+int 		mapData[NUMBER_OF_MAPS][MAPSIZE][MAPSIZE];		// File로 부터 받아온 맵 정보
+int			mapData_width[NUMBER_OF_MAPS];					// 맵의 길이
+int			mapData_height[NUMBER_OF_MAPS];					// 맵의 높이
+int			playerInitPos_x[NUMBER_OF_MAPS];				// 플레이어의 시작점
+int			playerInitPos_y[NUMBER_OF_MAPS];				// 플레이어의 시작점
+
+int			maxMapLevel = -1;
+
+int			showTopLevel = 0;							// 랭킹을 볼 맵의 레벨, 0 = 전체, 1 ~ 5 = 레벨
+int			isPlay = 1;									// 현재 게임이 실행중인지.
+// 랭킹 정보
+char		rankingList_name[NUMBER_OF_MAPS][5][11];	// 이름
+int			rankingList_moveCount[NUMBER_OF_MAPS][5];	// 이동 수
+
 
 /*
 - h(왼쪽), j(아래), k(위), l(오른쪽) : 왼쪽 아래 위 오른쪽 창고지기 조정
+- u(undo) : 5 최대 번 할 수 있음
+- r(replay) : ( ) 현재 맵을 처음부터 다시 시작 움직임 횟수는 계속 유지
+- n(new) : ( ) 첫 번째 맵부터 다시 시작 움직임 횟수 기록 삭제
+- e(exit) : . 게임 종료 종료하기 전 필요한 정보 저장해야 함
+- s(save) : . sokoban 현재 상태 파일에 저장 파일 이름은 으로 하고 다음에 다시 게임을 연속해서 할
+수 있도록 모든 상태 저장해야 함
 - f(file load) : sokoban save 파일에서 저장된 내용을 읽어 시점에서부터 이어서 게임하게 함
+- d(display help) : 명령 내용 보여줌
+- t(top) : . t . t 게임 순위 보여줌 만 입력하면 전체 순위 다음 숫자가 오면 해당 맵W의 순위
 */
 
 int main() {
-	// map 파일로 부터 맵 정보를 읽어옴
+
 	if (!MapLoading()) {
 		fprintf(stderr, "MapLoading() Error\n");
 		return 0;
@@ -86,19 +88,20 @@ int main() {
 	printf("이름을 입력하십시오: ");
 	scanf("%s", name);
 
-	// 처음 맵의 정보를 가져와서 적용함
 	if (!SetMap(0)) {
 		fprintf(stderr, "Init SetMap() Error\n");
 		return 0;
 	}
+	RankingLoad();
 
 	while (isPlay) {
-		Input(); // 입력 처리 관련 함수
-		Render(); // 화면에 맵 출력
+		Input();
+		Render();
 
-		if (Clear()) { // 게임 클리어 확인
+		if (Clear()) {
 
 			system("clear");
+			RankingSave();
 			printf("#####################################\n");
 			printf("#                                   #\n");
 			printf("#                                   #\n");
@@ -110,26 +113,34 @@ int main() {
 			printf("#####################################\n");
 
 			getch();
-
+			if (currentLevel >= maxMapLevel - 1) {
+				isPlay = 0;
+			}
 
 
 			currentLevel++;
-			New(); // 다음 레벨의 새로운 맵을 불러옴
+
+			movingCount = 0;
+			SetMap(currentLevel);
 		}
 	}
+
 }
 
 void Input() {
-
 	char c = getch();
 	switch (c) {
 	case LEFT:
+		Move(-1, 0);
 		break;
 	case UP:
+		Move(0, -1);
 		break;
 	case RIGHT:
+		Move(1, 0);
 		break;
 	case DOWN:
+		Move(0, 1);
 		break;
 	case UNDO:
 		break;
@@ -147,35 +158,147 @@ void Input() {
 		break;
 	case EXIT:
 		break;
-	case LF: // Lind Feed 혹은
-	case CR: // Carriage return 이면, 즉 엔터가 눌렸으면
-
+	case LF:
+	case CR:
 	default:
-		break;
+
 	}
 }
 
-// 화면에 맵을 출력하는 함수
 void Render() {
 	gotoxy(0, 0);
-
-	for (int y = 0; y < mapData[currentLevel].height; y++, printf("\n")) {
-		for (int x = 0; x < mapData[currentLevel].width; x++) {
-			if (cPos.x == x && cPos.y == y)
+	printf("\tHello %s\n\n", name);
+	for (int y = 0; y < mapData_height[currentLevel]; y++, printf("\n")) {
+		for (int x = 0; x < mapData_width[currentLevel]; x++) {
+			if (cPos_x == x && cPos_y == y)
 				printf("%c", PLAYER);
-			else if (cMapData.map[y][x] != EMPTY)
+			else if (cMapData[y][x] != EMPTY)
 				printf("%c", GOLD);
-			else if (mapData[currentLevel].map[y][x] == WALL || mapData[currentLevel].map[y][x] == STORAGE)
-				printf("%c", mapData[currentLevel].map[y][x]);
+			else if (mapData[currentLevel][y][x] == WALL || mapData[currentLevel][y][x] == STORAGE)
+				printf("%c", mapData[currentLevel][y][x]);
 			else
 				printf(" ");
 		}
 	}
+
+	printf("\n");
+	printf("MovingCount: %5d\n", movingCount);
 }
 
-void New() {
-	movingCount = 0;
-	SetMap(currentLevel);
+void Move(int delX, int delY) {
+	int goldPos_x = -1;
+	int goldPos_y = -1;
+	int _pos_x = cPos_x + delX;
+	int _pos_y = cPos_y + delY;
+	if (!IsInMap(_pos_x, _pos_y))
+		return;
+
+	if (mapData[currentLevel][_pos_y][_pos_x] == WALL)
+		return;
+
+	if (cMapData[_pos_y][_pos_x] == GOLD)
+	{
+		goldPos_x = _pos_x + delX;
+		goldPos_y = _pos_y + delY;
+		if (!IsInMap(goldPos_x, goldPos_y))
+			return;
+		if (mapData[currentLevel][goldPos_y][goldPos_x] == WALL)
+			return;
+		if (cMapData[goldPos_y][goldPos_x] != EMPTY)
+			return;
+
+		cMapData[goldPos_y][goldPos_x] = GOLD;
+		cMapData[_pos_y][_pos_x] = EMPTY;
+
+	}
+	cPos_x = _pos_x;
+	cPos_y = _pos_y;
+	movingCount++;
+}
+
+int RankingSave() {
+	FILE* ranking;
+
+
+	for (int i = 0; i < NUMBER_OF_MAPS; i++)
+	{
+		if (rankingList_moveCount[currentLevel][i] == 0)
+		{
+			strcpy(rankingList_name[currentLevel][i], name);
+			rankingList_moveCount[currentLevel][i] = movingCount;
+			break;
+		}
+
+		if (rankingList_moveCount[currentLevel][i] > movingCount)
+		{
+			for (int j = i; j < NUMBER_OF_MAPS - 1; j++)
+			{
+				strcpy(rankingList_name[currentLevel][i + 1], rankingList_name[currentLevel][i]);
+				rankingList_moveCount[currentLevel][i + 1] = rankingList_moveCount[currentLevel][i];
+			}
+			strcpy(rankingList_name[currentLevel][i], name);
+			rankingList_moveCount[currentLevel][i] = movingCount;
+			break;
+		}
+	}
+
+	if ((ranking = fopen("ranking.txt", "w")) == NULL)
+	{
+		fprintf(stderr, "ranking.txt 파일을 불러오지 못 했습니다.\n");
+		return 0;
+	}
+
+	for (int i = 0; i < NUMBER_OF_MAPS; i++) {
+		fprintf(ranking, "RankingLevel%d\n", i);
+		for (int j = 0; j < 5; j++) {
+			if (rankingList_moveCount[i][j] > 0) {
+				fprintf(ranking, "%s %d\n", rankingList_name[i][j], rankingList_moveCount[i][j]);
+			}
+			else break;
+		}
+	}
+	fclose(ranking);
+
+
+	return 1;
+}
+
+int RankingLoad() {
+	FILE* ranking;
+
+	int level = 0;
+
+	if (access("ranking.txt", 0) == -1)
+	{
+		return 0;
+	}
+
+	if ((ranking = fopen("ranking.txt", "r")) == NULL)
+	{
+		fprintf(stderr, "ranking.txt 파일을 불러오지 못 했습니다.\n");
+		return 0;
+	}
+
+	char s[10000];
+	int rankingNum = 0;
+	int strlen = 0;
+
+	while ((fscanf(ranking, "%s", s)) != EOF)
+	{
+		strlen = Len(s);
+
+		if (strlen == (Len("RankingLevel") + 1) && strncmp("RankingLevel", s, strlen - 1) == 0) {
+			level = s[strlen - 1] - '0';
+			rankingNum = 0;
+		}
+		else {
+			strncpy(rankingList_name[level][rankingNum], s, strlen);
+			fscanf(ranking, "%d", &rankingList_moveCount[level][rankingNum]);
+			rankingNum++;
+		}
+	}
+	fclose(ranking);
+	return 1;
 }
 
 int MapLoading() {
@@ -195,12 +318,11 @@ int MapLoading() {
 	int returnValue = 1;	// 리턴 값 1 == 정상작동, 0 == 비정상작동
 
 	int strLength = 0;	// 현재 읽어드린 문자열의 길이 
-	int level = -1;		// 현재 로드하는 맵의 레벨
 	int currentY = 0;	// 현재 로드 중인 맵의 Y축 위치
 
 	int goldCount = 0, storageCount = 0; // 금괴 개수와 저장소 개수가 맞는 확인하는 변수
 	while (fscanf(mapFile, "%s", s) != EOF) { // 입력이 존재하면
-		strLength = strlen(s);
+		strLength = Len(s);
 		if (strLength > 30) {
 			printf("적합하지 않은 map파일입니다.\n");
 			returnValue = 0;
@@ -212,20 +334,20 @@ int MapLoading() {
 				break;
 			else if (s[0] - '0' > 0) {
 				if (goldCount != storageCount) {
-					printf("%d번 맵의 골드와 보관장소의 개수가 맞지 않습니다.\n", level);
+					printf("%d번 맵의 골드와 보관장소의 개수가 맞지 않습니다.\n", maxMapLevel);
 					returnValue = 0;
 				}
 				goldCount = 0;
 				storageCount = 0;
 
-				level = s[0] - '0';
+				maxMapLevel = s[0] - '0';
 				currentY = 0;
 			}
 		}
 		else {
-			if (level - 1 >= 0) {
+			if (maxMapLevel - 1 >= 0) {
 				if (currentY == 0)
-					mapData[level - 1].width = strLength;
+					mapData_width[maxMapLevel - 1] = strLength;
 				for (int i = 0; i < strLength; i++) {
 					if (s[i] == GOLD)
 						goldCount++;
@@ -233,14 +355,14 @@ int MapLoading() {
 						storageCount++;
 
 					if (s[i] == PLAYER) {
-						mapData[level - 1].playerInitPos.x = i;
-						mapData[level - 1].playerInitPos.y = currentY;
-						mapData[level - 1].map[currentY][i] = EMPTY;
+						playerInitPos_x[maxMapLevel - 1] = i;
+						playerInitPos_y[maxMapLevel - 1] = currentY;
+						mapData[maxMapLevel - 1][currentY][i] = EMPTY;
 					}
 					else
-						mapData[level - 1].map[currentY][i] = s[i];
+						mapData[maxMapLevel - 1][currentY][i] = s[i];
 				}
-				mapData[level - 1].height = ++currentY;
+				mapData_height[maxMapLevel - 1] = ++currentY;
 				if (currentY + 1 > 30) {
 					printf("적합하지 않은 map파일입니다.\n");
 					returnValue = 0;
@@ -255,43 +377,58 @@ int MapLoading() {
 	return returnValue;
 }
 
-
 int SetMap(int level) {
 
 	currentLevel = level; // 현재 게임 레벨을 level로 설정
-	if (!(mapData[currentLevel].width > 0 && mapData[currentLevel].height > 0)) // level에 해당하는 맵이 존재하지 않으면 게임 종료
+	if (!(mapData_width[currentLevel] > 0 && mapData_height[currentLevel] > 0)) // level에 해당하는 맵이 존재하지 않으면 게임 종료
 		return 0;
-
-	cMapData.width = mapData[currentLevel].width; // 현재 맵의 금괴 정보를 담는 cMapData의 width, height 설정
-	cMapData.height = mapData[currentLevel].height;
+	}
 
 	// cMapData는 금괴의 정보를 담고 있는 배열로 
 	// 원본 맵에서 금괴위치 말고는 EMPTY로 초기화
-	for (int y = 0; y < cMapData.height; y++) {
-		for (int x = 0; x < cMapData.width; x++) {
-			if (mapData[currentLevel].map[y][x] == GOLD)
-				cMapData.map[y][x] = mapData[currentLevel].map[y][x];
+	for (int y = 0; y < mapData_height[currentLevel]; y++) {
+		for (int x = 0; x < mapData_width[currentLevel]; x++) {
+			if (mapData[currentLevel][y][x] == GOLD)
+				cMapData[y][x] = mapData[currentLevel][y][x];
 			else
-				cMapData.map[y][x] = EMPTY;
+				cMapData[y][x] = EMPTY;
 		}
 	}
-	cMapData.playerInitPos = mapData[currentLevel].playerInitPos; // 플레이어 초기 위치 설정
-	cPos = cMapData.playerInitPos; // 플레이어의 현재 위치를 초기 위치로 설정
+	cPos_x = playerInitPos_x[currentLevel]; // 플레이어의 현재 위치를 초기 위치로 설정
+	cPos_y = playerInitPos_y[currentLevel]; // 플레이어의 현재 위치를 초기 위치로 설정
 
 	system("clear"); // 화면 비우기
 	Render(); // 맵 출력
 	return 1;
 }
 
-
 int Clear() {
-	for (int y = 0; y < cMapData.height; y++) {
-		for (int x = 0; x < cMapData.width; x++) {
+	// 게임 클리어 조건 확인 함수
+	for (int y = 0; y < mapData_height[currentLevel]; y++) {
+		for (int x = 0; x < mapData_width[currentLevel]; x++) {
 			// 금괴 중 1개라도 저장소 위치에 있지 않다면 0 반환
-			if (cMapData.map[y][x] == GOLD && mapData[currentLevel].map[y][x] != STORAGE)
+			if (cMapData[y][x] == GOLD && mapData[currentLevel][y][x] != STORAGE)
 				return 0;
 		}
 	}
+	return 1;
+}
+
+int Len(char* s) {
+	// 문자열의 길이를 구하는 함수
+// 문자열의 인덱스를 0부터 확인하면서 '\0'가 아닐 때까지 i를 1씩 더함
+	int i = 0;
+	while (s[i] != '\0') {
+		i++;
+	}
+	return i;
+
+}
+
+int IsInMap(int _pos_x, int _pos_y) {
+	// _pos의 x, y 좌표가 유요한 위치에 있지 않다면 0을 반환
+	if (_pos_x < 0 || _pos_y < 0 || _pos_y >= mapData_height[currentLevel] || _pos_x >= mapData_width[currentLevel])
+		return 0;
 	return 1;
 }
 
@@ -299,7 +436,6 @@ void gotoxy(int x, int y) {
 	printf("\033[%d;%df", y, x);		// 터미널 상에서 x, y좌표로 커서를 이동
 	fflush(stdout);				// 출력 버퍼를 비움
 }
-
 int getch() {
 	int c;
 	struct termios oldattr, newattr;
