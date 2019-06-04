@@ -38,6 +38,8 @@ int IsInMap(int, int);			// _pos가 맵 안에 있는 위치인지
 void Input();					// 입력을 담당하는 함수
 void Render();					// 화면 출력을 담당하는 함수
 void Move(int delX, int delY); // x축으로 delX만큼, y로 delY 만큼
+int Save();						// 현재 맵 상태를 저장하는 함수
+int FileLoad();					// sokoban파일로부터 저장된 내용을 불러와 적용시키는 함수
 int RankingSave();				// 랭킹을 저장하는 함수
 int RankingLoad();				// top파일로부터 랭킹 정보를 가져오는 함수
 int Clear();					// 게임을 클리어 했는지 확인하는 함수
@@ -50,6 +52,7 @@ int			cMapData[MAPSIZE][MAPSIZE];	// 여기의 map 변수에는 금의 위치만
 int			cPos_x, cPos_y;				// 캐릭터의 현재 위치
 
 // 저장되지 않아도 되는 정보------------------------------------------------
+// MAPDATA
 int 		mapData[NUMBER_OF_MAPS][MAPSIZE][MAPSIZE];		// File로 부터 받아온 맵 정보
 int			mapData_width[NUMBER_OF_MAPS];					// 맵의 길이
 int			mapData_height[NUMBER_OF_MAPS];					// 맵의 높이
@@ -149,8 +152,10 @@ void Input() {
 	case REPLAY:
 		break;
 	case SAVE:
+		Save();
 		break;
 	case FILE_LOAD:
+		FileLoad();
 		break;
 	case DISPLAY_HELP:
 		break;
@@ -214,6 +219,58 @@ void Move(int delX, int delY) {
 	cPos_x = _pos_x;
 	cPos_y = _pos_y;
 	movingCount++;
+}
+
+int Save() {
+	FILE* sokoban;
+
+	if ((sokoban = fopen("sokoban.txt", "w")) == NULL) {
+		fprintf(stderr, "sokoban.txt 파일을 불러오지 못 했습니다.\n");
+		return 0;
+	}
+
+	fprintf(sokoban, "%s\n", name);
+	fprintf(sokoban, "%d\n", movingCount);
+	fprintf(sokoban, "%d\n", currentLevel);
+	// 맵 정보 저장
+	for (int y = 0; y < mapData_height[currentLevel]; y++)
+		for (int x = 0; x < mapData_width[currentLevel]; x++)
+			fprintf(sokoban, "%d ", cMapData[y][x]);
+
+	fprintf(sokoban, "%d %d\n", cPos_x, cPos_y);
+
+	fclose(sokoban);
+	return 1;
+}
+
+int FileLoad() {
+	FILE* sokoban;
+
+	if (access("sokoban.txt", 0) == -1) {
+		fprintf(stderr, "sokoban.txt 파일이 존재하지 않습니다.\n");
+		return 0;
+	}
+
+	if ((sokoban = fopen("sokoban.txt", "r")) == NULL) {
+		fprintf(stderr, "sokoban.txt 파일을 불러오지 못 했습니다.\n");
+		return 0;
+	}
+	int level;
+
+	fscanf(sokoban, "%s", &name);
+	fscanf(sokoban, "%d", &movingCount);
+	fscanf(sokoban, "%d", &currentLevel);
+
+	for (int y = 0; y < mapData_height[currentLevel]; y++)
+		for (int x = 0; x < mapData_width[currentLevel]; x++)
+			fscanf(sokoban, "%d", &cMapData[y][x]);
+	fscanf(sokoban, "%d %d", &cPos_x, &cPos_y);
+
+	fclose(sokoban);
+
+	system("clear");
+	Render();
+	return 1;
 }
 
 int RankingSave() {
@@ -382,7 +439,6 @@ int SetMap(int level) {
 	currentLevel = level; // 현재 게임 레벨을 level로 설정
 	if (!(mapData_width[currentLevel] > 0 && mapData_height[currentLevel] > 0)) // level에 해당하는 맵이 존재하지 않으면 게임 종료
 		return 0;
-	}
 
 	// cMapData는 금괴의 정보를 담고 있는 배열로 
 	// 원본 맵에서 금괴위치 말고는 EMPTY로 초기화
