@@ -38,10 +38,10 @@ int IsInMap(int, int);			// _pos가 맵 안에 있는 위치인지
 void Input();					// 입력을 담당하는 함수
 void Render();					// 화면 출력을 담당하는 함수
 void Move(int delX, int delY); // x축으로 delX만큼, y로 delY 만큼
+void DisplayHelp();				// 명령어를 출력하는 함수
 int Save();						// 현재 맵 상태를 저장하는 함수
 int FileLoad();					// sokoban파일로부터 저장된 내용을 불러와 적용시키는 함수
 int RankingSave();				// 랭킹을 저장하는 함수
-int RankingLoad();				// top파일로부터 랭킹 정보를 가져오는 함수
 int Clear();					// 게임을 클리어 했는지 확인하는 함수
 
 // 저장되어야할 정보--------------------------------------------------------
@@ -131,6 +131,8 @@ int main() {
 }
 
 void Input() {
+
+	int topPressed = 0;
 	char c = getch();
 	switch (c) {
 	case LEFT:
@@ -158,16 +160,34 @@ void Input() {
 		FileLoad();
 		break;
 	case DISPLAY_HELP:
+		DisplayHelp();
 		break;
 	case TOP:
+		topPressed = 1;
 		break;
 	case EXIT:
+		Save();
+		isPlay = 0;
 		break;
 	case LF:
 	case CR:
+		if (topPressedBeforeFrame)
+		{
+			RankingDisplay();
+			showTopLevel = 0;
+		}
 	default:
+		if (topPressedBeforeFrame) {
+			if (c - '0' >= 1 && c - '0' <= NUMBER_OF_MAPS) {
+				topPressed = 1;
+				showTopLevel = c - '0';
+			}
+		}
+		else showTopLevel = 0;
 
 	}
+
+	topPressedBeforeFrame = topPressed;
 }
 
 void Render() {
@@ -219,6 +239,21 @@ void Move(int delX, int delY) {
 	cPos_x = _pos_x;
 	cPos_y = _pos_y;
 	movingCount++;
+}
+
+void DisplayHelp() {
+	system("clear");
+	printf("h(왼쪽), j(아래), k(위), l(오른쪽)\n");
+	printf("u(undo)\n");
+	printf("r(replay)\n");
+	printf("n(new)\n");
+	printf("e(exit)\n");
+	printf("s(save)\n");
+	printf("f(file load)\n");
+	printf("d(display help)\n");
+	printf("t(top)\n");
+	getch();
+	system("clear");
 }
 
 int Save() {
