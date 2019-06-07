@@ -37,7 +37,9 @@ int SetMap(int level);			// 현재 플레이할 맵을 레벨이 level인 맵으
 int IsInMap(int, int);			// _pos가 맵 안에 있는 위치인지
 void Input();					// 입력을 담당하는 함수
 void Render();					// 화면 출력을 담당하는 함수
-void Move(int delX, int delY); // x축으로 delX만큼, y로 delY 만큼
+void Move(int delX, int delY, int undoMoving); // x축으로 delX만큼, y로 delY 만큼
+void Undo();					// Undo 기능
+void New();						// 새로시작
 void DisplayHelp();				// 명령어를 출력하는 함수
 int Save();						// 현재 맵 상태를 저장하는 함수
 int FileLoad();					// sokoban파일로부터 저장된 내용을 불러와 적용시키는 함수
@@ -49,9 +51,15 @@ int Clear();					// 게임을 클리어 했는지 확인하는 함수
 // 저장되어야할 정보--------------------------------------------------------
 char		name[10];					// 이름
 int			movingCount;				// 움직인 개수
+int			undoCount = 5;				// undo할 수 있는 횟수
 int			currentLevel = 0;			// 현재 맵의 레벨 0 ~ 4
 int			cMapData[MAPSIZE][MAPSIZE];	// 여기의 map 변수에는 금의 위치만 표시
 int			cPos_x, cPos_y;				// 캐릭터의 현재 위치
+// 최근 5회 움직인 정보
+int			moveInfo_delta_x[5];
+int			moveInfo_delta_y[5];
+int			moveInfo_goldPos_x[5];
+int			moveInfo_goldPos_y[5];
 
 // 저장되지 않아도 되는 정보------------------------------------------------
 // MAPDATA
@@ -63,6 +71,7 @@ int			playerInitPos_y[NUMBER_OF_MAPS];				// 플레이어의 시작점
 
 int			maxMapLevel = -1;
 
+int			topPressedBeforeFrame;						// 이전 프레임에서 TOP키가 눌렸는지
 int			showTopLevel = 0;							// 랭킹을 볼 맵의 레벨, 0 = 전체, 1 ~ 5 = 레벨
 int			isPlay = 1;									// 현재 게임이 실행중인지.
 // 랭킹 정보
@@ -124,9 +133,7 @@ int main() {
 
 
 			currentLevel++;
-
-			movingCount = 0;
-			SetMap(currentLevel);
+			New();
 		}
 	}
 
@@ -138,22 +145,25 @@ void Input() {
 	char c = getch();
 	switch (c) {
 	case LEFT:
-		Move(-1, 0);
+		Move(-1, 0, 0);
 		break;
 	case UP:
-		Move(0, -1);
+		Move(0, -1, 0);
 		break;
 	case RIGHT:
-		Move(1, 0);
+		Move(1, 0, 0);
 		break;
 	case DOWN:
-		Move(0, 1);
+		Move(0, 1, 0);
 		break;
 	case UNDO:
+		Undo();
 		break;
 	case NEW:
+		New();
 		break;
 	case REPLAY:
+		SetMap(currentLevel);
 		break;
 	case SAVE:
 		Save();
@@ -210,9 +220,10 @@ void Render() {
 
 	printf("\n");
 	printf("MovingCount: %5d\n", movingCount);
+	printf("undoCount  : %5d\n", undoCount);
 }
 
-void Move(int delX, int delY) {
+void Move(int delX, int delY, int undoMoving) {
 	int goldPos_x = -1;
 	int goldPos_y = -1;
 	int _pos_x = cPos_x + delX;
@@ -241,6 +252,57 @@ void Move(int delX, int delY) {
 	cPos_x = _pos_x;
 	cPos_y = _pos_y;
 	movingCount++;
+
+	if (!undoMoving) {
+		int pInfo_delta_x = delX * -1;
+		int pInfo_delta_y = delY * -1;
+		int pInfo_goldPos_x = goldPos_x;
+		int pInfo_goldPos_y = goldPos_y;
+
+		for (int i = 4; i > 0; i--) {
+			moveInfo_delta_x[i] = moveInfo_delta_x[i - 1];
+			moveInfo_delta_y[i] = moveInfo_delta_y[i - 1];
+			moveInfo_goldPos_x[i] = moveInfo_goldPos_x[i - 1];
+			moveInfo_goldPos_y[i] = moveInfo_goldPos_y[i - 1];
+		}
+		moveInfo_delta_x[0] = pInfo_delta_x;
+		moveInfo_delta_y[0] = pInfo_delta_y;
+		moveInfo_goldPos_x[0] = pInfo_goldPos_x;
+		moveInfo_goldPos_y[0] = pInfo_goldPos_y;
+	}
+}
+
+void Undo() {
+	if (undoCount <= 0)
+		return;
+	if (moveInfo_delta_x[0] == 0 && moveInfo_delta_y[0] == 0)
+		return;
+
+
+	Move(moveInfo_delta_x[0], moveInfo_delta_y[0], 1);
+	if (moveInfo_goldPos_x[0] != -1 && moveInfo_goldPos_y[0] != -1) {
+		int goldPos_x = moveInfo_goldPos_x[0] + moveInfo_delta_x[0];
+		int goldPos_y = moveInfo_goldPos_y[0] + moveInfo_delta_y[0];
+
+		cMapData[moveInfo_goldPos_y[0]][moveInfo_goldPos_x[0]] = EMPTY;
+		cMapData[goldPos_y][goldPos_x] = GOLD;
+
+	}
+	undoCount--;
+	movingCount++;
+
+	for (int i = 0; i < 4; i++) {
+		moveInfo_delta_x[i] = moveInfo_delta_x[i + 1];
+		moveInfo_delta_y[i] = moveInfo_delta_y[i + 1];
+		moveInfo_goldPos_x[i] = moveInfo_goldPos_x[i + 1];
+		moveInfo_goldPos_y[i] = moveInfo_goldPos_y[i + 1];
+	}
+}
+
+void New() {
+	movingCount = 0;
+	undoCount = 5;
+	SetMap(currentLevel);
 }
 
 void DisplayHelp() {
@@ -268,6 +330,7 @@ int Save() {
 
 	fprintf(sokoban, "%s\n", name);
 	fprintf(sokoban, "%d\n", movingCount);
+	fprintf(sokoban, "%d\n", undoCount);
 	fprintf(sokoban, "%d\n", currentLevel);
 	// 맵 정보 저장
 	for (int y = 0; y < mapData_height[currentLevel]; y++)
@@ -296,6 +359,7 @@ int FileLoad() {
 
 	fscanf(sokoban, "%s", &name);
 	fscanf(sokoban, "%d", &movingCount);
+	fscanf(sokoban, "%d", &undoCount);
 	fscanf(sokoban, "%d", &currentLevel);
 
 	for (int y = 0; y < mapData_height[currentLevel]; y++)
@@ -517,6 +581,14 @@ int SetMap(int level) {
 	currentLevel = level; // 현재 게임 레벨을 level로 설정
 	if (!(mapData_width[currentLevel] > 0 && mapData_height[currentLevel] > 0)) // level에 해당하는 맵이 존재하지 않으면 게임 종료
 		return 0;
+
+	for (int i = 0; i = 5; i++)
+	{
+		moveInfo_delta_x[i] = 0;
+		moveInfo_delta_y[i] = 0;
+		moveInfo_goldPos_x[i] = 0;
+		moveInfo_goldPos_y[i] = 0;
+	}
 
 	// cMapData는 금괴의 정보를 담고 있는 배열로 
 	// 원본 맵에서 금괴위치 말고는 EMPTY로 초기화
