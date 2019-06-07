@@ -42,6 +42,8 @@ void DisplayHelp();				// 명령어를 출력하는 함수
 int Save();						// 현재 맵 상태를 저장하는 함수
 int FileLoad();					// sokoban파일로부터 저장된 내용을 불러와 적용시키는 함수
 int RankingSave();				// 랭킹을 저장하는 함수
+int RankingLoad();				// top파일로부터 랭킹 정보를 가져오는 함수 
+void RankingDisplay();			// 랭킹을 출력하는 함수
 int Clear();					// 게임을 클리어 했는지 확인하는 함수
 
 // 저장되어야할 정보--------------------------------------------------------
@@ -391,6 +393,47 @@ int RankingLoad() {
 	}
 	fclose(ranking);
 	return 1;
+}
+
+void RankingDisplay() {
+
+	system("clear");
+
+	if (showTopLevel == 0) {
+		for (int i = 0; i < NUMBER_OF_MAPS; i++) {
+			printf("map %d\n", i + 1);
+			for (int j = 0; j < 5; j++) {
+				if (rankingList_moveCount[i][j] > 0) {
+					printf("%s %d\n", rankingList_name[i][j], rankingList_moveCount[i][j]);
+				}
+				else {
+					if (j == 0)
+					{
+						printf("-\n");
+						break;
+					}
+				}
+			}
+		}
+	}
+	else {
+		printf("map %d\n", showTopLevel);
+		for (int i = 0; i < 5; i++) {
+			if (rankingList_moveCount[showTopLevel - 1][i] > 0) {
+				printf("%s %d\n", rankingList_name[showTopLevel - 1][i], rankingList_moveCount[showTopLevel - 1][i]);
+			}
+			else {
+				if (i == 0)
+				{
+					printf("-\n");
+					break;
+				}
+			}
+		}
+	}
+
+	getch();
+	system("clear");
 }
 
 int MapLoading() {
