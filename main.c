@@ -31,7 +31,7 @@
 
 int getch();					// 화면에 문자를 출력하지 않고 입력을 받는 함수
 void gotoxy(int x, int y);		// 화면의 커서를 움직이는 함수
-int Len(char* s);				// 문자열의 길이를 출력하는 함수
+int Len(char *s);				// 문자열의 길이를 출력하는 함수
 int MapLoading();				// map파일로부터 맵을 로딩하는 함수
 int SetMap(int level);			// 현재 플레이할 맵을 레벨이 level인 맵으로 변경
 int IsInMap(int, int);			// _pos가 맵 안에 있는 위치인지
@@ -316,12 +316,17 @@ void DisplayHelp() {
 	printf("f(file load)\n");
 	printf("d(display help)\n");
 	printf("t(top)\n");
-	getch();
+
+	char c;
+	do {
+		c = getch();
+	} while (!(c == LF || c == CR));
+
 	system("clear");
 }
 
 int Save() {
-	FILE* sokoban;
+	FILE *sokoban;
 
 	if ((sokoban = fopen("sokoban.txt", "w")) == NULL) {
 		fprintf(stderr, "sokoban.txt 파일을 불러오지 못 했습니다.\n");
@@ -344,7 +349,7 @@ int Save() {
 }
 
 int FileLoad() {
-	FILE* sokoban;
+	FILE *sokoban;
 
 	if (access("sokoban.txt", 0) == -1) {
 		fprintf(stderr, "sokoban.txt 파일이 존재하지 않습니다.\n");
@@ -375,7 +380,7 @@ int FileLoad() {
 }
 
 int RankingSave() {
-	FILE* ranking;
+	FILE *ranking;
 
 
 	for (int i = 0; i < NUMBER_OF_MAPS; i++)
@@ -422,7 +427,7 @@ int RankingSave() {
 }
 
 int RankingLoad() {
-	FILE* ranking;
+	FILE *ranking;
 
 	int level = 0;
 
@@ -471,10 +476,9 @@ void RankingDisplay() {
 					printf("%s %d\n", rankingList_name[i][j], rankingList_moveCount[i][j]);
 				}
 				else {
-					if (j == 0)
-					{
-						printf("-\n");
-						break;
+				    if (j == 0) {
+					    printf("-\n");
+					    break;
 					}
 				}
 			}
@@ -487,21 +491,23 @@ void RankingDisplay() {
 				printf("%s %d\n", rankingList_name[showTopLevel - 1][i], rankingList_moveCount[showTopLevel - 1][i]);
 			}
 			else {
-				if (i == 0)
-				{
+			    if (i ==0){
 					printf("-\n");
 					break;
-				}
+			    }
 			}
 		}
 	}
 
-	getch();
+	char c;
+	do {
+		c = getch();
+	} while ( !(c == LF || c == CR));
 	system("clear");
 }
 
 int MapLoading() {
-	FILE* mapFile;
+	FILE *mapFile;
 
 	if (access("map.txt", 0) == -1) {
 		fprintf(stderr, "map.txt 파일이 존재하지 않습니다.\n");
@@ -620,9 +626,9 @@ int Clear() {
 	return 1;
 }
 
-int Len(char* s) {
+int Len(char *s) {
 	// 문자열의 길이를 구하는 함수
-// 문자열의 인덱스를 0부터 확인하면서 '\0'가 아닐 때까지 i를 1씩 더함
+	// 문자열의 인덱스를 0부터 확인하면서 '\0'가 아닐 때까지 i를 1씩 더함
 	int i = 0;
 	while (s[i] != '\0') {
 		i++;
@@ -632,7 +638,7 @@ int Len(char* s) {
 }
 
 int IsInMap(int _pos_x, int _pos_y) {
-	// _pos의 x, y 좌표가 유요한 위치에 있지 않다면 0을 반환
+    // _pos의 x, y 좌표가 유요한 위치에 있지 않다면 0을 반환
 	if (_pos_x < 0 || _pos_y < 0 || _pos_y >= mapData_height[currentLevel] || _pos_x >= mapData_width[currentLevel])
 		return 0;
 	return 1;
@@ -642,17 +648,17 @@ void gotoxy(int x, int y) {
 	printf("\033[%d;%df", y, x);		// 터미널 상에서 x, y좌표로 커서를 이동
 	fflush(stdout);				// 출력 버퍼를 비움
 }
-int getch() {
-	int c;
-	struct termios oldattr, newattr;
+int getch(){
+    int c;
+    struct termios oldattr,newattr;
 
-	tcgetattr(STDIN_FILENO, &oldattr);		// 현재 터미널 설정 읽음
-	newattr = oldattr;
-	newattr.c_lflag &= ~(ICANON | ECHO); 	// CANONICAL과 ECHO 끔
-	newattr.c_cc[VMIN] = 1;			// 최소 입력 문자 수를 1로 설정
-	newattr.c_cc[VTIME] = 0;			// 최소 읽기 대기 시간을 0으로 설정
-	tcsetattr(STDIN_FILENO, TCSANOW, &newattr);	// 터미널에 설정 입력
-	c = getchar();				// 키보드 입력 읽음
-	tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);	// 원래의 설정으로 복구
-	return c;
+    tcgetattr(STDIN_FILENO,&oldattr);		// 현재 터미널 설정 읽음
+    newattr = oldattr;
+    newattr.c_lflag &= ~(ICANON | ECHO); 	// CANONICAL과 ECHO 끔
+    newattr.c_cc[VMIN] = 1;			// 최소 입력 문자 수를 1로 설정
+    newattr.c_cc[VTIME] = 0;			// 최소 읽기 대기 시간을 0으로 설정
+    tcsetattr(STDIN_FILENO,TCSANOW,&newattr);	// 터미널에 설정 입력
+    c = getchar();				// 키보드 입력 읽음
+    tcsetattr(STDIN_FILENO,TCSANOW,&oldattr);	// 원래의 설정으로 복구
+    return c;
 }
