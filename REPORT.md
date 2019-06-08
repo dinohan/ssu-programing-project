@@ -1,3 +1,19 @@
+# 소코반 프로젝트
+
+## 0. 조원 및 각 역할
+
+이강준
+
+이재호
+
+정준서
+
+한도협
+
+## 1. 개요
+
+## 2. 소스코드
+
 ```c
 #include <stdio.h>
 #include <stdlib.h>
@@ -650,6 +666,7 @@ void gotoxy(int x, int y) {
 	printf("\033[%d;%df", y, x);	// 터미널 상에서 x, y좌표로 커서를 이동
 	fflush(stdout);								// 출력 버퍼를 비움
 }
+
 int getch(){
     int c;
     struct termios oldattr,newattr;
@@ -664,6 +681,36 @@ int getch(){
     tcsetattr(STDIN_FILENO,TCSANOW,&oldattr);	// 원래의 설정으로 복구
     return c;
 }
-
 ```
 
+
+
+## 3. 실행 화면
+
+### Input name
+
+![01 input_name](./screenshot/01 input_name.png)
+
+### Game Play
+
+![02 gameplay_1](./screenshot/02 gameplay_1.png)
+
+![03 gameplay_2](./screenshot/03 gameplay_2.png)
+
+### Level Clear
+
+![04 level_clear](./screenshot/04 level_clear.png)
+
+![05 gmaeplay_3](./screenshot/05 gmaeplay_3.png)
+
+### Top
+
+![06 ranking](./screenshot/06 ranking.png)
+
+### Top 1
+
+![07 ranking_level](./screenshot/07 ranking_level.png)
+
+### Display Help
+
+![08 display_help](./screenshot/08 display_help.png)
