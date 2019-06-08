@@ -30,32 +30,32 @@
 
 #define MAPSIZE 31
 
-int getch();					// 화면에 문자를 출력하지 않고 입력을 받는 함수
-void gotoxy(int x, int y);		// 화면의 커서를 움직이는 함수
-int Len(char *s);				// 문자열의 길이를 출력하는 함수
-int MapLoading();				// map파일로부터 맵을 로딩하는 함수
+int getch();								// 화면에 문자를 출력하지 않고 입력을 받는 함수
+void gotoxy(int x, int y);	// 화면의 커서를 움직이는 함수
+int Len(char *s);						// 문자열의 길이를 출력하는 함수
+int MapLoading();						// map파일로부터 맵을 로딩하는 함수
 int SetMap(int level);			// 현재 플레이할 맵을 레벨이 level인 맵으로 변경
 int IsInMap(int, int);			// _pos가 맵 안에 있는 위치인지
-void Input();					// 입력을 담당하는 함수
-void Render();					// 화면 출력을 담당하는 함수
+void Input();								// 입력을 담당하는 함수
+void Render();							// 화면 출력을 담당하는 함수
 void Move(int delX, int delY, int undoMoving); // x축으로 delX만큼, y로 delY 만큼
-void Undo();					// Undo 기능
-void New();						// 새로시작
-void DisplayHelp();				// 명령어를 출력하는 함수
-int Save();						// 현재 맵 상태를 저장하는 함수
-int FileLoad();					// sokoban파일로부터 저장된 내용을 불러와 적용시키는 함수
-int RankingSave();				// 랭킹을 저장하는 함수
-int RankingLoad();				// top파일로부터 랭킹 정보를 가져오는 함수 
+void Undo();								// Undo 기능
+void New();									// 새로시작
+void DisplayHelp();					// 명령어를 출력하는 함수
+int Save();									// 현재 맵 상태를 저장하는 함수
+int FileLoad();							// sokoban파일로부터 저장된 내용을 불러와 적용시키는 함수
+int RankingSave();					// 랭킹을 저장하는 함수
+int RankingLoad();					// top파일로부터 랭킹 정보를 가져오는 함수 
 void RankingDisplay();			// 랭킹을 출력하는 함수
-int Clear();					// 게임을 클리어 했는지 확인하는 함수
+int Clear();								// 게임을 클리어 했는지 확인하는 함수
 
 // 저장되어야할 정보--------------------------------------------------------
-char		name[10];					// 이름
+char		name[10];						// 이름
 int			movingCount;				// 움직인 개수
-int			undoCount = 5;				// undo할 수 있는 횟수
-int			currentLevel = 0;			// 현재 맵의 레벨 0 ~ 4
+int			undoCount = 5;			// undo할 수 있는 횟수
+int			currentLevel = 0;		// 현재 맵의 레벨 0 ~ 4
 int			cMapData[MAPSIZE][MAPSIZE];	// 여기의 map 변수에는 금의 위치만 표시
-int			cPos_x, cPos_y;				// 캐릭터의 현재 위치
+int			cPos_x, cPos_y;			// 캐릭터의 현재 위치
 // 최근 5회 움직인 정보
 int			moveInfo_delta_x[5];
 int			moveInfo_delta_y[5];
@@ -72,9 +72,9 @@ int			playerInitPos_y[NUMBER_OF_MAPS];				// 플레이어의 시작점
 
 int			maxMapLevel = -1;
 
-int			topPressedBeforeFrame;						// 이전 프레임에서 TOP키가 눌렸는지
-int			showTopLevel = 0;							// 랭킹을 볼 맵의 레벨, 0 = 전체, 1 ~ 5 = 레벨
-int			isPlay = 1;									// 현재 게임이 실행중인지.
+int			topPressedBeforeFrame;	// 이전 프레임에서 TOP키가 눌렸는지
+int			showTopLevel = 0;				// 랭킹을 볼 맵의 레벨, 0 = 전체, 1 ~ 5 = 레벨
+int			isPlay = 1;							// 현재 게임이 실행중인지.
 // 랭킹 정보
 char		rankingList_name[NUMBER_OF_MAPS][5][11];	// 이름
 int			rankingList_moveCount[NUMBER_OF_MAPS][5];	// 이동 수
@@ -586,7 +586,8 @@ int MapLoading() {
 int SetMap(int level) {
 
 	currentLevel = level; // 현재 게임 레벨을 level로 설정
-	if (!(mapData_width[currentLevel] > 0 && mapData_height[currentLevel] > 0)) // level에 해당하는 맵이 존재하지 않으면 게임 종료
+	if (!(mapData_width[currentLevel] > 0 && mapData_height[currentLevel] > 0))
+    // level에 해당하는 맵이 존재하지 않으면 게임 종료
 		return 0;
 
 	for (int i = 0; i = 5; i++)
@@ -610,8 +611,8 @@ int SetMap(int level) {
 	cPos_x = playerInitPos_x[currentLevel]; // 플레이어의 현재 위치를 초기 위치로 설정
 	cPos_y = playerInitPos_y[currentLevel]; // 플레이어의 현재 위치를 초기 위치로 설정
 
-	system("clear"); // 화면 비우기
-	Render(); // 맵 출력
+	system("clear");	// 화면 비우기
+	Render(); 				// 맵 출력
 	return 1;
 }
 
@@ -646,20 +647,20 @@ int IsInMap(int _pos_x, int _pos_y) {
 }
 
 void gotoxy(int x, int y) {
-	printf("\033[%d;%df", y, x);		// 터미널 상에서 x, y좌표로 커서를 이동
-	fflush(stdout);				// 출력 버퍼를 비움
+	printf("\033[%d;%df", y, x);	// 터미널 상에서 x, y좌표로 커서를 이동
+	fflush(stdout);								// 출력 버퍼를 비움
 }
 int getch(){
     int c;
     struct termios oldattr,newattr;
 
-    tcgetattr(STDIN_FILENO,&oldattr);		// 현재 터미널 설정 읽음
+    tcgetattr(STDIN_FILENO,&oldattr);					// 현재 터미널 설정 읽음
     newattr = oldattr;
-    newattr.c_lflag &= ~(ICANON | ECHO); 	// CANONICAL과 ECHO 끔
-    newattr.c_cc[VMIN] = 1;			// 최소 입력 문자 수를 1로 설정
-    newattr.c_cc[VTIME] = 0;			// 최소 읽기 대기 시간을 0으로 설정
+    newattr.c_lflag &= ~(ICANON | ECHO); 			// CANONICAL과 ECHO 끔
+    newattr.c_cc[VMIN] = 1;										// 최소 입력 문자 수를 1로 설정
+    newattr.c_cc[VTIME] = 0;									// 최소 읽기 대기 시간을 0으로 설정
     tcsetattr(STDIN_FILENO,TCSANOW,&newattr);	// 터미널에 설정 입력
-    c = getchar();				// 키보드 입력 읽음
+    c = getchar();														// 키보드 입력 읽음
     tcsetattr(STDIN_FILENO,TCSANOW,&oldattr);	// 원래의 설정으로 복구
     return c;
 }
