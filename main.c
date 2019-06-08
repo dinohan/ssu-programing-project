@@ -230,8 +230,8 @@ void Move(int delX, int delY, int undoMoving) {
 	int _pos_x = cPos_x + delX;
 	int _pos_y = cPos_y + delY;
 	
-	
-	movingCount++;
+	if(!undoMoving)
+		movingCount++;
 	if (!IsInMap(_pos_x, _pos_y))
 		return;
 
