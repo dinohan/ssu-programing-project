@@ -228,6 +228,9 @@ void Move(int delX, int delY, int undoMoving) {
 	int goldPos_y = -1;
 	int _pos_x = cPos_x + delX;
 	int _pos_y = cPos_y + delY;
+	
+	
+	movingCount++;
 	if (!IsInMap(_pos_x, _pos_y))
 		return;
 
@@ -251,7 +254,6 @@ void Move(int delX, int delY, int undoMoving) {
 	}
 	cPos_x = _pos_x;
 	cPos_y = _pos_y;
-	movingCount++;
 
 	if (!undoMoving) {
 		int pInfo_delta_x = delX * -1;
