@@ -160,6 +160,7 @@ void Input() {
 		Undo();
 		break;
 	case NEW:
+		currentLevel=0;
 		New();
 		break;
 	case REPLAY:
