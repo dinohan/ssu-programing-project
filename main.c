@@ -362,7 +362,7 @@ int FileLoad() {
 	}
 	int level;
 
-	fscanf(sokoban, "%s", &name);
+	fscanf(sokoban, "%s", name);
 	fscanf(sokoban, "%d", &movingCount);
 	fscanf(sokoban, "%d", &undoCount);
 	fscanf(sokoban, "%d", &currentLevel);
@@ -588,7 +588,7 @@ int SetMap(int level) {
 	if (!(mapData_width[currentLevel] > 0 && mapData_height[currentLevel] > 0)) // level에 해당하는 맵이 존재하지 않으면 게임 종료
 		return 0;
 
-	for (int i = 0; i = 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		moveInfo_delta_x[i] = 0;
 		moveInfo_delta_y[i] = 0;
