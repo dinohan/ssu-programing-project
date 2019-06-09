@@ -1,5 +1,7 @@
 # 소코반 게임
 
+https://github.com/dinohan/ssu-programing-project
+
 ## 0. 조원 및 각 역할
 
 ### 이강준 20192852
