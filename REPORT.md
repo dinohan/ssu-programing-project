@@ -1,16 +1,106 @@
-# 소코반 프로젝트
+# 소코반 게임
 
 ## 0. 조원 및 각 역할
 
-이강준
+### 이강준 20192852
 
-이재호
+참여율 : 25%
 
-정준서
+* 개발
+  * add `mapLoading()`, `Undo()`, `New()`, `Save()`, `FileLoad()`
+  * 변수, 함수 이름 결정
 
-한도협
+
+### 이재호 20192860 `조장`
+
+참여율 : 25%
+
+* 개발
+  * add `Render()`, `SetMap()`, `gotoxy()`, `getch()`, `RankingLoad()`
+
+
+### 정준서 20192873
+
+참여율 : 25%
+
+* 개발
+  * add `IsInMap()`
+* Bug fix
+
+### 한도협 20192880
+
+참여율 : 25%
+
+* 개발
+  * add `DisplayHelp()`
+* `GitHub` 관리
+* Bug fix
+
+
+
+
+
+
+
+
+
+
 
 ## 1. 개요
+
+유명한 2차원 퍼즐게임인 `Sokoban`을 C언어를 통해 구현했다. CLI를 통해 게임을 즐길 수 있다.
+
+### 함수 설명
+
+```c
+int getch();								// 화면에 문자를 출력하지 않고 입력을 받는 함수
+void gotoxy(int x, int y);	// 화면의 커서를 움직이는 함수
+int Len(char *s);						// 문자열의 길이를 출력하는 함수
+int MapLoading();						// map파일로부터 맵을 로딩하는 함수
+int SetMap(int level);			// 현재 플레이할 맵을 레벨이 level인 맵으로 변경하는 함수
+int IsInMap(int, int);			// _pos가 맵 안에 있는 위치인지 확인하는 함수
+void Input();								// 입력을 담당하는 함수
+void Render();							// 화면 출력을 담당하는 함수
+void Move(int delX, int delY, int undoMoving);
+														// x축으로 delX만큼, y로 delY 만큼 움직이는 함수
+void Undo();								// Undo 기능
+void New();									// 새로시작
+void DisplayHelp();					// 명령어를 출력하는 함수
+int Save();									// 현재 맵 상태를 저장하는 함수
+int FileLoad();							// sokoban파일로부터 저장된 내용을 불러와 적용시키는 함수
+int RankingSave();					// 랭킹을 저장하는 함수
+int RankingLoad();					// top파일로부터 랭킹 정보를 가져오는 함수 
+void RankingDisplay();			// 랭킹을 출력하는 함수
+int Clear();								// 게임을 클리어 했는지 확인하는 함수
+```
+
+### 순서도
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 2. 소스코드
 
@@ -106,7 +196,7 @@ int			rankingList_moveCount[NUMBER_OF_MAPS][5];	// 이동 수
 수 있도록 모든 상태 저장해야 함
 - f(file load) : sokoban save 파일에서 저장된 내용을 읽어 시점에서부터 이어서 게임하게 함
 - d(display help) : 명령 내용 보여줌
-- t(top) : . t . t 게임 순위 보여줌 만 입력하면 전체 순위 다음 숫자가 오면 해당 맵W의 순위
+- t(top) : . t . t 게임 순위 보여줌 만 입력하면 전체 순위 다음 숫자가 오면 해당 맵의 순위
 */
 
 int main() {
@@ -685,32 +775,96 @@ int getch(){
 
 
 
+
+
+
+
+
+
+
+
 ## 3. 실행 화면
 
 ### Input name
 
-![01 input_name](./screenshot/01 input_name.png)
+<img src="./screenshot/01 input_name.png" width="400px"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Game Play
 
-![02 gameplay_1](./screenshot/02 gameplay_1.png)
+<img src="./screenshot/02 gameplay_1.png" width="400px"/>
 
-![03 gameplay_2](./screenshot/03 gameplay_2.png)
+<img src="./screenshot/03 gameplay_2.png" width="400px"/>
+
+
+
+
+
+
+
+
 
 ### Level Clear
 
-![04 level_clear](./screenshot/04 level_clear.png)
+<img src="./screenshot/04 level_clear.png" width="400px"/>
 
-![05 gmaeplay_3](./screenshot/05 gmaeplay_3.png)
+<img src="./screenshot/05 gmaeplay_3.png" width="400px"/>
+
+
+
+
+
+
+
+
+
 
 ### Top
 
-![06 ranking](./screenshot/06 ranking.png)
+<img src="./screenshot/06 ranking.png" width="400px"/>
 
 ### Top 1
 
-![07 ranking_level](./screenshot/07 ranking_level.png)
+<img src="./screenshot/07 ranking_level.png" width="400px"/>
+
+
+
+
+
+
 
 ### Display Help
 
-![08 display_help](./screenshot/08 display_help.png)
+<img src="./screenshot/08 display_help.png" width="400px"/>
+
+---
+
