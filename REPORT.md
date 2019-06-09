@@ -50,6 +50,23 @@
 
 유명한 2차원 퍼즐게임인 `Sokoban`을 C언어를 통해 구현했다. CLI를 통해 게임을 즐길 수 있다.
 
+### 플레이 방법
+
+* `main.c`, `map.txt` 파일을 준비한다.
+* 위 파일이 있는 경로에서 `$ gcc main.c -o sokoban.exe` 를 실행한다.
+* `$ ./sokoban.exe`를 하면 게임이 실행 된다.
+* `이름을 입력하시오: ` 가 뜨면 본인의 이름을 쓰고 (영문 10자 이내) `Enter` 를 친다.
+* 게임에서 지원하는 명령어는 다음과 같다.
+  * `h` (왼쪽), `j` (아래), `k` (위), `l` (오른쪽) : 창고지기를 움직임
+  * `u` (undo) : 최대 5번 할 수 있음
+  * `r` (replay) : 현재 맵을 처음부터 다시 시작(움직임 횟수는 계속 유지)
+  * `n` (new) : 첫 번째 맵부터 다시 시작(움직임 횟수 기록 삭제)
+  * `e` (exit) : 게임 종료. 종료하기 전 필요한 정보 저장해야 함
+  * `s` (save) : 현재 상태 파일에 저장. 파일 이름은 `sokoban.txt`으로 하고 다음에 다시 게임을 연속해서 할 수 있도록 모든 상태 저장해야 함 
+  * `f` (file load) : `sokoban.txt` 파일에서 저장된 내용을 읽어 `save` 시점에서부터 이어서 게임하게 함 
+  * `d` (display help) : 명령 내용 보여줌
+  * `t` (top) : 게임 순위 보여줌. `t` 만 입력하면 전체 순위. `t` 다음 숫자가 오면 해당 맵의 순위
+
 ### 함수 설명
 
 ```c
@@ -73,32 +90,6 @@ int RankingLoad();					// top파일로부터 랭킹 정보를 가져오는 함�
 void RankingDisplay();			// 랭킹을 출력하는 함수
 int Clear();								// 게임을 클리어 했는지 확인하는 함수
 ```
-
-### 순서도
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -848,11 +839,11 @@ int getch(){
 
 
 
-### Top
+### Top `t`
 
 <img src="./screenshot/06 ranking.png" width="400px"/>
 
-### Top 1
+### Top 1 `t1`
 
 <img src="./screenshot/07 ranking_level.png" width="400px"/>
 
@@ -862,7 +853,7 @@ int getch(){
 
 
 
-### Display Help
+### Display Help `d`
 
 <img src="./screenshot/08 display_help.png" width="400px"/>
 
